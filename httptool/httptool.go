@@ -11,7 +11,6 @@ import (
 //Progress progress listener interface
 type Progress interface {
 	SetSize(s int64)
-	SetWidth(w int64)
 	Write(p []byte) (n int, err error)
 }
 
@@ -23,7 +22,7 @@ func Download(client *http.Client, dest string, url string, progress Progress) e
 	}
 	defer resp.Body.Close()
 
-	destTmp := fmt.Sprintf("%s.tmp", dest)
+	destTmp := fmt.Sprintf("%s.downloading", dest)
 
 	write := func() error {
 		tmp, err := os.Create(destTmp)
