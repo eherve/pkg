@@ -1,3 +1,3 @@
-module eherve/pkg.go/progress
+module eherve/pkg/progress
 
 go 1.12
