@@ -1,4 +1,4 @@
-package progress
+package console
 
 import (
 	"fmt"
@@ -6,11 +6,11 @@ import (
 	"time"
 )
 
-//BasicTemplate print only bar and percetage
-const BasicTemplate = "{{bar}} {{percent}}"
+//ProgressBasicTemplate print only bar and percetage
+const ProgressBasicTemplate = "{{bar}} {{percent}}"
 
-//Bar implements Progress
-type Bar struct {
+//Progress implements Progress
+type Progress struct {
 	size     int64
 	template string
 	// action   string
@@ -22,23 +22,28 @@ type Bar struct {
 	maxLength int
 }
 
+//NewProgress return a new Progress Progress
+func NewProgress() *Progress {
+	return (&Progress{template: ProgressBasicTemplate, width: int64(10), interval: time.Second})
+}
+
 //Size get the size of the data beeing processed
-func (p *Bar) Size() int64 {
+func (p *Progress) Size() int64 {
 	return p.size
 }
 
 //SetSize set the size of the data beeing processed
-func (p *Bar) SetSize(s int64) {
+func (p *Progress) SetSize(s int64) {
 	p.size = s
 }
 
 //Template get the the draw template
-func (p *Bar) Template() string {
+func (p *Progress) Template() string {
 	return p.template
 }
 
 //SetTemplate set the draw template
-func (p *Bar) SetTemplate(t string) {
+func (p *Progress) SetTemplate(t string) {
 	p.template =
 		strings.ReplaceAll(
 			strings.ReplaceAll(
@@ -49,31 +54,31 @@ func (p *Bar) SetTemplate(t string) {
 }
 
 //Width get the progress bar width
-func (p *Bar) Width() int64 {
+func (p *Progress) Width() int64 {
 	return p.width
 }
 
 //SetWidth set the progress bar width
-func (p *Bar) SetWidth(w int64) {
+func (p *Progress) SetWidth(w int64) {
 	p.width = w
 }
 
 //Interval get the progress bar drawing call interval
-func (p *Bar) Interval() time.Duration {
+func (p *Progress) Interval() time.Duration {
 	return p.interval
 }
 
 //SetInterval set the progress bar drawing call interval
-func (p *Bar) SetInterval(i time.Duration) {
+func (p *Progress) SetInterval(i time.Duration) {
 	p.interval = i
 }
 
 //Progress get the current progress
-func (p *Bar) Progress() int64 {
+func (p *Progress) Progress() int64 {
 	return p.progress
 }
 
-func (p *Bar) Write(b []byte) (n int, err error) {
+func (p *Progress) Write(b []byte) (n int, err error) {
 	var n64 int64
 	n64, err = p.Tick(len(b))
 	n = int(n64)
@@ -82,7 +87,7 @@ func (p *Bar) Write(b []byte) (n int, err error) {
 
 //Tick add n to progress
 // returns progress
-func (p *Bar) Tick(n int) (int64, error) {
+func (p *Progress) Tick(n int) (int64, error) {
 	p.progress += int64(n)
 	if p.progress != p.size {
 		if err := p.drawProgress(); err != nil {
@@ -100,14 +105,14 @@ func (p *Bar) Tick(n int) (int64, error) {
 
 //Clear reset progress
 // if newline true, print a new line
-func (p *Bar) Clear(newline bool) {
+func (p *Progress) Clear(newline bool) {
 	p.progress = 0
 	if newline {
 		fmt.Printf("\n")
 	}
 }
 
-func (p *Bar) drawProgress() error {
+func (p *Progress) drawProgress() error {
 	if !p.lastDraw.IsZero() && p.interval != -1 {
 		nextDraw := p.lastDraw.Add(p.interval)
 		if time.Now().Before(nextDraw) {
@@ -123,7 +128,7 @@ func (p *Bar) drawProgress() error {
 	return nil
 }
 
-func (p *Bar) drawBar(progress, total int64) error {
+func (p *Progress) drawBar(progress, total int64) error {
 	current := int64((float64(progress) / float64(total)) * float64(p.width))
 
 	line := fmt.Sprintf(
@@ -142,9 +147,4 @@ func (p *Bar) drawBar(progress, total int64) error {
 
 	_, err := fmt.Print(line + "\r")
 	return err
-}
-
-//NewBar return a new Progress Bar
-func NewBar() *Bar {
-	return (&Bar{template: BasicTemplate, width: int64(10), interval: time.Second})
 }

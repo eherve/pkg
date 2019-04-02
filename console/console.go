@@ -1,4 +1,4 @@
-package cliutil
+package console
 
 import (
 	"bufio"
@@ -38,4 +38,27 @@ func AskUserInt(question string) (i int, err error) {
 	}
 	i, err = strconv.Atoi(strings.Trim(res, " "))
 	return
+}
+
+//AskUserChoice ask user a choice question
+func AskUserChoice(question string, choices ...string) (c string, err error) {
+	res, err := AskUser(question)
+	if err != nil {
+		return
+	}
+	if contains(choices, res) {
+		c = res
+	} else {
+		err = fmt.Errorf("invalid choice, only one of these value is possible: [%s] ", strings.Join(choices, "/"))
+	}
+	return
+}
+
+func contains(a []string, x string) bool {
+	for _, n := range a {
+		if x == n {
+			return true
+		}
+	}
+	return false
 }
