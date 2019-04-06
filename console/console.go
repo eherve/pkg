@@ -8,6 +8,14 @@ import (
 	"strings"
 )
 
+//Getenv get env variable with default value
+func Getenv(key, defaultValue string) string {
+	if val, ok := os.LookupEnv(key); ok {
+		return val
+	}
+	return defaultValue
+}
+
 //AskUser ask user a question
 func AskUser(question string) (res string, err error) {
 	reader := bufio.NewReader(os.Stdin)
